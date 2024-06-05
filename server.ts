@@ -6,16 +6,14 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import fs from 'fs';
 import { ProductViewType, OrderOverViewType } from './types';
-import { v4 as uuidv4 } from 'uuid';
-require('dotenv').config();
+import { uploadToS3 } from './storage';
+import * as dotenv from "dotenv";
+
+dotenv.config();
 const app = express();
 
-app.use(cors({
-  origin: '*',
-  allowedHeaders: ['Content-Type']
-}))
-
-app.use(bodyParser.json());
+app.use(cors())
+app.use(bodyParser.json({limit: '50mb' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'uploads')));
 
@@ -28,16 +26,16 @@ const storage = multer.diskStorage({
   }
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({ limits: { fileSize: 100 * 1024 * 1024, fieldSize: 25 * 1024 * 1024} , storage: storage })
 
 app.get('/get_product', async (req, res) => {
   try {
     const product = await db.query_product();
     
     for(let i = 0; i < product.length; i++){
-      const imagePath = path.join(__dirname, 'uploads', `${product[i].img}.jpg`);
+      const imagePath = path.join(__dirname, 'uploads', `${product[i].img}.jpeg`);
       if (fs.existsSync(imagePath)) {
-        product[i].img = `http://172.16.10.8:3000/images/` + product[i].img + '.jpg';
+        product[i].img = `${process.env.API_URL}/images/` + product[i].img + '.jpeg';
       }
       else{
         product[i].img = "";
@@ -60,7 +58,6 @@ app.get('/get_product_evaluation', async (req, res) => {
 })
 
 app.get('/get_all_order', async (req, res) => {
-  console.log("get_all_order");
   const order = await db.query_All_order() as OrderOverViewType[];
   const convertedOrder = {
     unchecked: order.filter(o => o.type === 'unchecked'),
@@ -153,21 +150,10 @@ app.post('/confirm_order', async (req, res) => {
   res.sendStatus(200);
 })
 
-
-app.post('/upload_product_image', upload.single('file'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).send('No file uploaded.');
-  }
-  const { destination, filename } = req.file;
-  const imageData = fs.readFileSync(`${destination}\\${filename}`);
-
-  const base64Data = imageData.toString().replace(/^data:image\/jpeg;base64,/, "");
-  const buffer = Buffer.from(base64Data, 'base64');
-  const responseName = uuidv4();
-  fs.writeFileSync(`${destination}\\${responseName}.jpg`, buffer);
-  fs.unlinkSync(`${destination}\\${filename}`);
-
-  res.send(responseName);
+app.post('/upload_product_image', upload.single('file'), (req: any, res) => {
+  const parts = req.file.filename.split('.');
+  console.log(parts.slice(0, parts.length - 1).join('.'));
+  res.send(parts.slice(0, parts.length - 1).join('.'));
 });
 
 app.use('/images', express.static(path.join(__dirname, 'uploads')));

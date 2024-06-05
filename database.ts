@@ -1,12 +1,14 @@
 import { ProductDataBaseType } from "./types";
-const mysql = require('mysql');
-require('dotenv').config();
-const pool = mysql.createPool({
+import mysql from 'mysql';
+import * as dotenv from "dotenv";
+dotenv.config();
+
+const pool: any = mysql.createPool({
   connectionLimit: 5,
   host     : process.env.RDS_HOSTNAME,
   user     : process.env.RDS_USERNAME,
   password : process.env.RDS_PASSWORD,
-  port     : process.env.RDS_PORT,
+  port     : parseInt(process.env.RDS_PORT as string),
   database : process.env.RDS_DATABASE
 });
 
@@ -166,10 +168,10 @@ export default {
 
   delete_product: (id: string) => {
     return new Promise((resolve, reject) => {
-      execute(`DELETE evaluation, product
-                  FROM product
-                  JOIN evaluation ON evaluation.PName = product.PName
-                  WHERE product.PID = ?;`, [id], (err: any, res: any) => {
+      execute(`DELETE p
+               FROM product as p
+               LEFT JOIN evaluation as e ON e.PName = p.PName
+               WHERE p.PID = ?;`, [id], (err: any, res: any) => {
         if(err) return reject(err);
         resolve(res);
       })

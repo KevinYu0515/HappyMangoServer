@@ -10,21 +10,28 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.588.0",
+    "@aws-sdk/lib-storage": "^3.588.0",
     "@types/multer": "^1.4.11",
     "@types/node": "^20.12.7",
+    "aws-sdk": "^2.1633.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "file-system": "^2.2.2",
+    "formidable": "^3.5.1",
     "multer": "^1.4.5-lts.1",
     "mysql": "^2.18.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "uuidv4": "^6.2.13"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
+    "@types/formidable": "^3.4.5",
+    "@types/mysql": "^2.15.26",
     "@types/uuid": "^9.0.8"
   }
 }
