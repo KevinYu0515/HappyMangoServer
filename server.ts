@@ -4,9 +4,8 @@ import multer from 'multer';
 import path from 'path';
 import cors from 'cors';
 import bodyParser from 'body-parser';
-import fs from 'fs';
 import { ProductViewType, OrderOverViewType } from './types';
-import { uploadToS3 } from './storage';
+import { uploadToS3, getImageFromS3 } from './storage';
 import * as dotenv from "dotenv";
 
 dotenv.config();
@@ -33,13 +32,17 @@ app.get('/get_product', async (req, res) => {
     const product = await db.query_product();
     
     for(let i = 0; i < product.length; i++){
-      const imagePath = path.join(__dirname, 'uploads', `${product[i].img}.jpeg`);
-      if (fs.existsSync(imagePath)) {
-        product[i].img = `${process.env.API_URL}/images/` + product[i].img + '.jpeg';
-      }
-      else{
-        product[i].img = "";
-      }
+
+      const suffixIndex = product[i].img.lastIndexOf(".");
+      product[i].img = await getImageFromS3({key: product[i].img.substring(0, suffixIndex)});
+
+      // const lastDotIndex = product[i].img.lastIndexOf(".");
+      // product[i].img = `${process.env.BUCKET_URL}/` + product[i].img.substring(0, lastDotIndex);
+      // const imagePath = path.join(__dirname, 'uploads', `${product[i].img}.jpeg`);
+      // if (fs.existsSync(imagePath)) {
+        
+      // }
+      // product[i].img = "";
     }
 
     res.json(product);
@@ -150,10 +153,8 @@ app.post('/confirm_order', async (req, res) => {
   res.sendStatus(200);
 })
 
-app.post('/upload_product_image', upload.single('file'), (req: any, res) => {
-  const parts = req.file.filename.split('.');
-  console.log(parts.slice(0, parts.length - 1).join('.'));
-  res.send(parts.slice(0, parts.length - 1).join('.'));
+app.post('/upload_product_image', uploadToS3.single('file'), (req: any, res) => {
+  res.send(`${req.file.key}.jepg`);
 });
 
 app.use('/images', express.static(path.join(__dirname, 'uploads')));
