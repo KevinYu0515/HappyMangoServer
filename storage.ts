@@ -12,7 +12,6 @@ const s3Config = new S3Client({
     credentials: {
         accessKeyId: process.env.AWS_ACCESS_KEY_ID as string,
         secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY as string,
-        sessionToken: process.env.AWS_SESSION_TOKEN as string
     }
 })
 
