@@ -34,15 +34,11 @@ export default {
   query_product: async (): Promise<any> => {
     return new Promise((resolve, reject) => {
       execute(`SELECT
-                  PID as id,
-                  PName as name,
-                  PNum as count, PType as type,
-                  Price as price,
-                  SalePrice as salePrice,
-                  PDescribe as description,
-                  Picture as img,
-                  CONCAT_WS('/', BBDYear, BBDMonth, BBDDate) AS date
-                  FROM product;`, [], (err: any, res: ProductDataBaseType[]) => {
+                PID as id,
+                PName as name,
+                PType as type,
+                Picture as imgKey
+                FROM product;`, [], (err: any, res: ProductDataBaseType[]) => {
         if (err) return reject(err);
         resolve(res);
       });
@@ -181,9 +177,21 @@ export default {
   query_specific_product: (id: string) => {
     return new Promise((resolve, reject) => {
       execute(`SELECT
-                  COUNT(ENo) as count,
-                  Avg(Grade) as score
-                  FROM evaluation WHERE PID=?`, [id], (err: any, res: any) => {
+                p.PName as name,
+                p.PNum as count,
+                PType as type,
+                p.Price as price,
+                p.SalePrice as salePrice,
+                p.PDescribe as description,
+                CONCAT_WS('/', p.BBDYear, p.BBDMonth, p.BBDDate) AS date,
+                COUNT(e.ENo) as ecount,
+                Avg(e.Grade) as score
+              FROM
+                product as p
+              LEFT JOIN
+                evaluation as e ON p.PID = e.PID
+              WHERE
+                p.PID=?`, [id], (err: any, res: any) => {
         if(err) return reject(err);
         resolve(res);              
       })
@@ -204,8 +212,32 @@ export default {
   confirm_order: (id: string) => {
     return new Promise((resolve, reject) => {
       execute(`UPDATE cus_order
-                  SET OType='onprogress'
-                  WHERE ONo=?`, [id], (err: any, res: any) => {
+                SET OType='onprogress'
+                WHERE ONo=?`, [id], (err: any, res: any) => {
+          if(err) return reject(err);
+          resolve(res);
+        }
+      )
+    })
+  },
+
+  check_user: (username: string, password: string) => {
+    return new Promise((resolve, reject) => {
+      execute(`SELECT Ussn as username, UPassword as password
+                FROM customer
+                WHERE Ussn=? AND UPassword=?`, [username, password], (err: any, res: any) => {
+          if(err) return reject(err);
+          resolve(res);
+        }
+      )
+    })
+  },
+
+  check_seller: (username: string, password: string) => {
+    return new Promise((resolve, reject) => {
+      execute(`SELECT Sssn as username, SPassword as password
+                FROM seller
+                WHERE Sssn=? AND SPassword=?`, [username, password], (err: any, res: any) => {
           if(err) return reject(err);
           resolve(res);
         }

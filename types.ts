@@ -46,4 +46,9 @@ interface OrderOverViewType {
     type: string
 }
 
-export { lessOrderData, orderDataWithType, ProductDataBaseType, ProductViewType, OrderOverViewType };
+interface loginData {
+    username: string,
+    password: string
+}
+
+export { lessOrderData, orderDataWithType, ProductDataBaseType, ProductViewType, OrderOverViewType, loginData };

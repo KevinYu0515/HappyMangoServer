@@ -4,7 +4,7 @@ import multer from 'multer';
 import path from 'path';
 import cors from 'cors';
 import bodyParser from 'body-parser';
-import { ProductViewType, OrderOverViewType } from './types';
+import { ProductViewType, OrderOverViewType, loginData } from './types';
 import { uploadToS3, getImageFromS3 } from './storage';
 import * as dotenv from "dotenv";
 
@@ -32,17 +32,14 @@ app.get('/get_product', async (req, res) => {
     const product = await db.query_product();
     
     for(let i = 0; i < product.length; i++){
-
-      const suffixIndex = product[i].img.lastIndexOf(".");
-      product[i].img = await getImageFromS3({key: product[i].img.substring(0, suffixIndex)});
-
-      // const lastDotIndex = product[i].img.lastIndexOf(".");
-      // product[i].img = `${process.env.BUCKET_URL}/` + product[i].img.substring(0, lastDotIndex);
-      // const imagePath = path.join(__dirname, 'uploads', `${product[i].img}.jpeg`);
-      // if (fs.existsSync(imagePath)) {
-        
-      // }
-      // product[i].img = "";
+      if(product[i].imgKey == "") product[i].img = await getImageFromS3({key: 'default.jpg'});
+      else if([".jpeg", ".jpg", ".png", ".gif"].some(extension => product[i].imgKey.includes(extension))){
+        const suffixIndex = product[i].imgKey.lastIndexOf(".");
+        product[i].img = await getImageFromS3({key: product[i].imgKey.substring(0, suffixIndex)});
+      }
+      else{
+        product[i].img = await getImageFromS3({key: product[i].imgKey});
+      }
     }
 
     res.json(product);
@@ -87,7 +84,7 @@ app.get('/get_seller_overview', async (req, res) => {
 })
 
 app.get('/get_specific_product', async (req, res) => {
-  const product = await db.query_specific_product((req.query as {id: string}).id);
+  const [product]: any = await db.query_specific_product((req.query as {id: string}).id);
   res.json(product);
 })
 
@@ -154,8 +151,16 @@ app.post('/confirm_order', async (req, res) => {
 })
 
 app.post('/upload_product_image', uploadToS3.single('file'), (req: any, res) => {
-  res.send(`${req.file.key}.jepg`);
+  res.send(`${req.file.key}.jpeg`);
 });
+
+app.post('/login', async (req, res) => {
+  const customer_result = await db.check_user(req.body.username, req.body.password) as loginData[];
+  const seller_result = await db.check_seller(req.body.username, req.body.password) as loginData[];
+  if(customer_result.length == 0 && seller_result.length == 0) res.sendStatus(404);
+  else if(customer_result.length > 0) res.sendStatus(200);
+  else res.send('Admin Login');
+})
 
 app.use('/images', express.static(path.join(__dirname, 'uploads')));
 
