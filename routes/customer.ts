@@ -76,3 +76,23 @@ router.delete(
     res.send(200);
   },
 );
+
+router.post("/reset_password", async (req, res) => {
+  res.send(await customerDB.reset_password(req.body.UID, req.body.newPassword));
+});
+
+router.post("/reset_location", async (req, res) => {
+  res.send(await customerDB.reset_location(req.body.UID, req.body.newLocation));
+});
+
+router.post("/reset_name", async (req, res) => {
+  res.send(await customerDB.reset_name(req.body.UID, req.body.newName));
+});
+
+router.post("/reset_email", async (req, res) => {
+  res.send(await customerDB.reset_email(req.body.UID, req.body.newEmail));
+});
+
+router.post("/reset_phone", async (req, res) => {
+  res.send(await customerDB.reset_phone(req.body.UID, req.body.newPhone));
+});

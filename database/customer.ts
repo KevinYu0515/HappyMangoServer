@@ -201,4 +201,69 @@ export default {
       );
     });
   },
+
+  reset_password: async (UID: string, newPassword: string): Promise<any> => {
+    return new Promise((resolve, reject) => {
+      execute(
+        `UPDATE customer SET UPassword = ? WHERE UID = ?;`,
+        [newPassword, UID],
+        (err: any, res: any) => {
+          if (err) return reject(err);
+          resolve(res);
+        },
+      );
+    });
+  },
+
+  reset_location: async (UID: string, newLocation: string): Promise<any> => {
+    return new Promise((resolve, reject) => {
+      execute(
+        `UPDATE customer SET UAddress = ? WHERE UID = ?;`,
+        [newLocation, UID],
+        (err: any, res: any) => {
+          if (err) return reject(err);
+          resolve(res);
+        },
+      );
+    });
+  },
+
+  reset_name: async (UID: string, newName: string): Promise<any> => {
+    return new Promise((resolve, reject) => {
+      execute(
+        `UPDATE customer SET UName = ? WHERE UID = ?;`,
+        [newName, UID],
+        (err: any, res: any) => {
+          if (err) return reject(err);
+          resolve(res);
+        },
+      );
+    });
+  },
+
+  reset_email: async (UID: string, newEmail: string): Promise<any> => {
+    return new Promise((resolve, reject) => {
+      execute(
+        `UPDATE customer SET Email = ? WHERE UID = ?;`,
+        [newEmail, UID],
+        (err: any, res: any) => {
+          if (err) return reject(err);
+          resolve(res);
+        },
+      );
+    });
+  },
+
+  reset_phone: async (UID: string, newPhone: string): Promise<any> => {
+    return new Promise((resolve, reject) => {
+      execute(
+        `UPDATE customer SET UPhone = ? WHERE UID = ?;`,
+        [newPhone, UID],
+        (err: any, res: any) => {
+          if (err) return reject(err);
+          resolve(res);
+        },
+      );
+    });
+  },
 };
