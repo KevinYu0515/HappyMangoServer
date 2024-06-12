@@ -1,17 +1,17 @@
-interface lessOrderData {
+export interface lessOrderData {
     id: string,
     name: string,
     time: string,
     status: ("onprogress" | "uncheck" | "done")
 }
 
-interface orderDataWithType {
+export interface orderDataWithType {
     onprogress: lessOrderData[];
     uncheck: lessOrderData[];
     done: lessOrderData[];
 }
 
-interface ProductDataBaseType {
+export interface ProductDataBaseType {
     BBDDate: number;
     BBDMonth: number;
     BBDYear: number;
@@ -25,7 +25,7 @@ interface ProductDataBaseType {
     SalePrice: number;
 }
 
-interface ProductViewType {
+export interface ProductViewType {
     id: string,
     name: string,
     type: string,
@@ -39,16 +39,41 @@ interface ProductViewType {
     imagePath: string
 }
 
-interface OrderOverViewType {
+export interface OrderOverViewType {
     id: string,
     time: string,
     customer: string,
     type: string
 }
 
-interface loginData {
+export interface loginData {
     username: string,
     password: string
 }
 
-export { lessOrderData, orderDataWithType, ProductDataBaseType, ProductViewType, OrderOverViewType, loginData };
+export interface CartProductType {
+    UID: string,
+    PID: string,
+    PName: string,
+    BNum: number
+    TMoney: number
+}
+
+export interface OrderType {
+    ONo: string,
+    PID: string,
+    PName: string,
+    BNum: number,
+    TMoney: number,
+    Way: 'land' | 'air' | 'sea',
+    OType: 'unchecked' | 'onprogress' | 'done' | 'cancel',
+    ShipAddress: string,
+    ShipMethod: string,
+    ShipWhere: string,
+    Note: string,
+    UID: string,
+    OTime: string,
+    ATime: string,
+    SName: string,
+    OCancelFactor: string
+}
